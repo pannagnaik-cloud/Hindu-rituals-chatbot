@@ -1,0 +1,74 @@
+<!-- templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindu Rituals Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        #chat-box { border: 1px solid #ddd; padding: 10px; height: 400px; overflow-y: scroll; margin-bottom: 20px; background-color: #fafafa; }
+        .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; max-width: 80%; }
+        .user { background-color: #007bff; color: white; text-align: right; margin-left: auto; }
+        .bot { background-color: #e9e9eb; color: black; }
+        #user-input { width: 80%; padding: 10px; border: 1px solid #ddd; border-radius: 20px; }
+        #send-btn { width: 15%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 20px; cursor: pointer; }
+        #send-btn:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Namaste! Ask me about Hindu Rituals</h1>
+        <div id="chat-box">
+            <div class="message bot">Hello! I can tell you about Daily Puja, Diwali, Hindu Marriage, and Fasting. What would you like to know?</div>
+        </div>
+        <input type="text" id="user-input" placeholder="Type your question here...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            // Use innerHTML to render the bot's formatted text correctly
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            addMessage('user', message);
+            userInput.value = '';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+                addMessage('bot', data.response);
+            } catch (error) {
+                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
